@@ -1,46 +1,66 @@
-const { count } = require("console")
-const BookModel= require("../models/bookModel")
+const { count } = require("console");
+const bookModel = require("../models/bookModel");
+const authorModel = require('../models/authorModel');
+const { json } = require("body-parser");
 
-const createBook= async function (req, res) {
-    let data= req.body
 
-    let savedData= await BookModel.create(data)
-    res.send({msg: savedData})
+const createBook = async function(req,res)
+{
+   const data= req.body;
+   let newData= await bookModel.create(data);
+   res.send({msg:newData})  
+}
+const getList = async function(req,res)
+{
+    
+    let newData= await authorModel.findOne({author_name:"Chetan Bhagat"}).select({author_id:1,_id:0})// getting author_id here
+    let value1=newData.author_id;
+    // let myd = await bookModel.find({author_id:value1}).select({name:1,_id:0 })
+    let myd = await bookModel.find({author_id:value1}).select("name")
+    console.log(Object.values(myd))
+    res.send(myd)
 }
 
-const getBooksData= async function (req, res) {
-    let allBooks= await BookModel.find( {authorName : "HO" } )
-    console.log(allBooks)
-    if (allBooks.length > 0 )  res.send({msg: allBooks, condition: true})
-    else res.send({msg: "No books found" , condition: false})
+const getUpdatedData = async function(req,res)
+{
+    let updat= await bookModel.findOneAndUpdate({name:"Two states"},{$set:{price:100}},{new:true});
+    let name= await authorModel.findOne({author_id:updat.author_id}).select({author_name:1,_id:0}) //author_name because it's not available in book
+    let resPrice=updat.price;
+    res.send({msg:name,resPrice})
+}
+
+const getByCostBooks = async function(req,res)
+{
+    let myarr=[];
+    let data = await (await bookModel.find({price:{$gte:50 , $lte:100}}).select({ author_id :1, name:1,_id:0}));
+    let data2= await authorModel.find().select({author_name:1,author_id:1,_id:0})
+
+   
+    for(let i=0;i<data.length;i++)
+    {
+     for(let j=0;j<data2.length;j++)
+     {
+        if(data[i].author_id===data2[j].author_id)
+        {
+            myarr.push(data2[j].author_name,data[i].name); 
+            break;
+        }
+
+     }
+        
+    }
+    console.log(myarr)
+
+    // res.send({msg:data});
+    res.send({mes:myarr})
+
 }
 
 
-const updateBooks= async function (req, res) {
-    let data = req.body // {sales: "1200"}
-    // let allBooks= await BookModel.updateMany( 
-    //     { author: "SK"} , //condition
-    //     { $set: data } //update in data
-    //  )
-    let allBooks= await BookModel.findOneAndUpdate( 
-        { authorName: "ABC"} , //condition
-        { $set: data }, //update in data
-        { new: true , upsert: true} ,// new: true - will give you back the updated document // Upsert: it finds and updates the document but if the doc is not found(i.e it does not exist) then it creates a new document i.e UPdate Or inSERT  
-     )
-     
-     res.send( { msg: allBooks})
-}
-
-const deleteBooks= async function (req, res) {
-    // let data = req.body 
-    let allBooks= await BookModel.updateMany( 
-        { authorName: "FI"} , //condition
-        { $set: {isDeleted: true} }, //update in data
-        { new: true } ,
-     )
-     
-     res.send( { msg: allBooks})
-}
+module.exports.createBook = createBook;
+module.exports.getList = getList;
+module.exports.getUpdatedData = getUpdatedData;
+module.exports.getByCostBooks=getByCostBooks;
 
 
 

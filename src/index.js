@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://functionup-cohort:G0Loxqc9wFEGyEeJ@cluster0.rzotr.mongodb.net/Pritesh8769811-DB?retryWrites=true&w=majority", {
+mongoose.connectd(mongodb://yhJTTbuGICaEbUUY:yhJTTbuGICaEbUUY@cluster0-shard-00-00.stxts.mongodb.net:27017,cluster0-shard-00-01.stxts.mongodb.net:27017,cluster0-shard-00-02.stxts.mongodb.net:27017/test?replicaSet=atlas-lejryl-shard-0&ssl=true&authSource=admin, {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
